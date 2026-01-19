@@ -1,7 +1,22 @@
 use anchor_lang::prelude::*;
-use anchor_lang::prelude::*;
 
 declare_id!("7UDghojWtnQUddeuAmA5q3oqiPfoQCAQySsxTHzyrkAj");
+
+/// Aegis Protocol: Privacy-Preserving Access Control Infrastructure
+/// 
+/// DESIGN PHILOSOPHY:
+/// This protocol provides general-purpose access control primitives that work across domains:
+/// - Invoice Factoring: Verify invoice amount + buyer without exposing details
+/// - Carbon Credits: Verify credit value + issuer without revealing buyer
+/// - RWA Collateral: Verify asset value + custody without exposing owner
+/// - Supply Chain: Verify conditions (temp, location) without revealing supplier
+/// 
+/// PRIVACY MODEL:
+/// - Rules are public (who can access, under what conditions)
+/// - Data is private (actual values never on-chain)
+/// - Verification is cryptographic (hash-based commitments)
+/// - Audit trail is preserved (event emission for compression)
+
 
 #[program]
 pub mod aegis_protocol {
