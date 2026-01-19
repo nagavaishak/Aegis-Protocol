@@ -1,0 +1,61 @@
+{
+  "meta": {
+    "program_id": "7UDghojWtnQUddeuAmA5q3oqiPfoQCAQySsxTHzyrkAj",
+    "total_events": 2,
+    "event_counts": {
+      "ruleCreated": 1,
+      "accessGranted": 1,
+      "certificateUsed": 0,
+      "ruleRevoked": 0
+    },
+    "compression_ready": true,
+    "light_protocol_compatible": true,
+    "helius_integration": {
+      "enabled": true,
+      "rpc_endpoint": "mainnet.helius-rpc.com",
+      "features": [
+        "enhanced_rpc",
+        "webhook_ready",
+        "production_reliability"
+      ],
+      "note": "Using Helius for reliable event indexing and real-time monitoring"
+    },
+    "note": "Events ready for Light Protocol ZK compression"
+  },
+  "events": [
+    {
+      "event_type": "AccessGranted",
+      "timestamp": "2026-01-19T22:48:33.000Z",
+      "data": {
+        "action": "Certificate issued after verification"
+      },
+      "signature": "2rKMZ1moahTYKzq2QSYoFmwSwD3HojroghSgk2i2hvkGUb9946VUV1JX4DUPsBALGz76WiegzvHd8WKqrrVzhrmZ",
+      "compression_metadata": {
+        "merkle_tree_ready": true,
+        "state_hash": "0000000495d43415",
+        "compressed_size_estimate": 128
+      },
+      "helius_metadata": {
+        "indexed_via": "helius_enhanced_rpc",
+        "rpc_endpoint": "mainnet.helius-rpc.com (production-ready)"
+      }
+    },
+    {
+      "event_type": "RuleCreated",
+      "timestamp": "2026-01-19T22:48:29.000Z",
+      "data": {
+        "action": "Access rule created on-chain"
+      },
+      "signature": "5fkmeFmhbNnpPbaCWDydbCgvR3DPCxcjQCqCtcjRqpiFm3WN2GNQoHF7mxYCf6jwfz4PT17Tn78txtJDcGSiCimZ",
+      "compression_metadata": {
+        "merkle_tree_ready": true,
+        "state_hash": "000000029c506ebc",
+        "compressed_size_estimate": 128
+      },
+      "helius_metadata": {
+        "indexed_via": "helius_enhanced_rpc",
+        "rpc_endpoint": "mainnet.helius-rpc.com (production-ready)"
+      }
+    }
+  ]
+}
