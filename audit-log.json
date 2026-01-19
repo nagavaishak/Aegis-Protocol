@@ -1,0 +1,43 @@
+{
+  "meta": {
+    "program_id": "7UDghojWtnQUddeuAmA5q3oqiPfoQCAQySsxTHzyrkAj",
+    "total_events": 2,
+    "event_counts": {
+      "ruleCreated": 1,
+      "accessGranted": 1,
+      "certificateUsed": 0,
+      "ruleRevoked": 0
+    },
+    "compression_ready": true,
+    "light_protocol_compatible": true,
+    "note": "Events ready for Light Protocol ZK compression"
+  },
+  "events": [
+    {
+      "event_type": "AccessGranted",
+      "timestamp": "2026-01-19T22:42:13.000Z",
+      "data": {
+        "action": "Certificate issued after verification"
+      },
+      "signature": "5ZdRCMq8n3pDqnyRtrsX2o3ZnwoCMMawDoCs1BeTZsJkNpDfd8MehwgQQEmnPzFsc4JjNBhenNpMdooozdTV6AGQ",
+      "compression_metadata": {
+        "merkle_tree_ready": true,
+        "state_hash": "0000000112aeb402",
+        "compressed_size_estimate": 128
+      }
+    },
+    {
+      "event_type": "RuleCreated",
+      "timestamp": "2026-01-19T22:42:10.000Z",
+      "data": {
+        "action": "Access rule created on-chain"
+      },
+      "signature": "3eBjSCTbYHPjAdMbMrFRGMTo1Whhk2wAHEBNLhcGxCqs3A9DHzVZEuHudbRnBpUUKc3qm7BzukQea4NRpNnmdzDF",
+      "compression_metadata": {
+        "merkle_tree_ready": true,
+        "state_hash": "0000000036d26e9a",
+        "compressed_size_estimate": 128
+      }
+    }
+  ]
+}
