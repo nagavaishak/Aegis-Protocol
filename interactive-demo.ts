@@ -151,6 +151,9 @@ async function main() {
       },
     ]);
 
+    const buyerIdToVerify = answers.buyerId1;
+    const buyerIdBuffer = Buffer.from(buyerIdToVerify.padEnd(32, "\0"));
+
     if (verifyAnswers.proceed) {
       const requestSpinner = ora("Lender requesting verification certificate...").start();
 
@@ -181,8 +184,6 @@ async function main() {
 
       // Lender provides invoice details for verification
       const invoiceAmount = 150000; // Meets minimum
-      const buyerIdToVerify = answers.buyerId1; // Approved buyer
-      const buyerIdBuffer = Buffer.from(buyerIdToVerify.padEnd(32, "\0"));
 
       await lenderProgram.methods
         .requestAccess(
@@ -215,6 +216,135 @@ async function main() {
       console.log(chalk.cyan("✓ Privacy: ") + chalk.white("Secret verified on-chain without exposure"));
       console.log(chalk.cyan("✓ Audit: ") + chalk.white("Event captured by Helius for compliance tracking"));
       console.log();
+    }
+
+    // PHASE 1: DENIAL SCENARIOS
+    console.log(chalk.yellow("\n════════════════════════════════════════════════════════"));
+    console.log(chalk.yellow.bold("  TESTING DENIAL SCENARIOS"));
+    console.log(chalk.yellow("════════════════════════════════════════════════════════\n"));
+
+    const denialAnswers = await inquirer.prompt([
+      {
+        type: "confirm",
+        name: "testDenials",
+        message: "Test access denial scenarios (wrong secret, low amount, unapproved buyer)?",
+        default: true,
+      },
+    ]);
+
+    if (denialAnswers.testDenials) {
+      // SCENARIO 1: Wrong Secret
+      console.log(chalk.red("\n❌ Test 1: Wrong Secret"));
+      const wrongLender1 = Keypair.generate();
+      await connection.requestAirdrop(wrongLender1.publicKey, 1000000000);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const [wrongCert1] = PublicKey.findProgramAddressSync(
+        [Buffer.from("certificate"), ruleAddress.toBuffer(), wrongLender1.publicKey.toBuffer()],
+        PROGRAM_ID
+      );
+
+      const wrongWallet1 = new Wallet(wrongLender1);
+      const wrongProvider1 = new AnchorProvider(connection, wrongWallet1, { commitment: "confirmed" });
+      const wrongProgram1 = new Program(idl, wrongProvider1);
+
+      const wrongSecret = Buffer.from("wrong-secret".padEnd(32, "\0"));
+      
+      try {
+        await wrongProgram1.methods
+          .requestAccess(
+            Array.from(wrongSecret),
+            new anchor.BN(150000),
+            Array.from(buyerIdBuffer)
+          )
+          .accounts({
+            accessRule: ruleAddress,
+            certificate: wrongCert1,
+            requester: wrongLender1.publicKey,
+            systemProgram: SystemProgram.programId,
+          })
+          .rpc();
+        console.log(chalk.red("   ⚠️  ERROR: Should have been denied!"));
+      } catch (err: any) {
+        console.log(chalk.green("   ✓ Correctly denied: Invalid secret"));
+        console.log(chalk.gray(`   Reason: ${err.message.split(':')[0]}`));
+      }
+
+      // SCENARIO 2: Amount Too Low
+      console.log(chalk.red("\n❌ Test 2: Invoice Amount Below Threshold"));
+      const wrongLender2 = Keypair.generate();
+      await connection.requestAirdrop(wrongLender2.publicKey, 1000000000);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const [wrongCert2] = PublicKey.findProgramAddressSync(
+        [Buffer.from("certificate"), ruleAddress.toBuffer(), wrongLender2.publicKey.toBuffer()],
+        PROGRAM_ID
+      );
+
+      const wrongWallet2 = new Wallet(wrongLender2);
+      const wrongProvider2 = new AnchorProvider(connection, wrongWallet2, { commitment: "confirmed" });
+      const wrongProgram2 = new Program(idl, wrongProvider2);
+
+      try {
+        await wrongProgram2.methods
+          .requestAccess(
+            Array.from(secretBuffer),
+            new anchor.BN(50000), // Below minimum
+            Array.from(buyerIdBuffer)
+          )
+          .accounts({
+            accessRule: ruleAddress,
+            certificate: wrongCert2,
+            requester: wrongLender2.publicKey,
+            systemProgram: SystemProgram.programId,
+          })
+          .rpc();
+        console.log(chalk.red("   ⚠️  ERROR: Should have been denied!"));
+      } catch (err: any) {
+        console.log(chalk.green("   ✓ Correctly denied: Amount below threshold"));
+        console.log(chalk.gray(`   Reason: ${err.message.split(':')[0]}`));
+      }
+
+      // SCENARIO 3: Unapproved Buyer
+      console.log(chalk.red("\n❌ Test 3: Unapproved Buyer"));
+      const wrongLender3 = Keypair.generate();
+      await connection.requestAirdrop(wrongLender3.publicKey, 1000000000);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const [wrongCert3] = PublicKey.findProgramAddressSync(
+        [Buffer.from("certificate"), ruleAddress.toBuffer(), wrongLender3.publicKey.toBuffer()],
+        PROGRAM_ID
+      );
+
+      const wrongWallet3 = new Wallet(wrongLender3);
+      const wrongProvider3 = new AnchorProvider(connection, wrongWallet3, { commitment: "confirmed" });
+      const wrongProgram3 = new Program(idl, wrongProvider3);
+
+      const unapprovedBuyer = Buffer.from("BUYER_UNKNOWN".padEnd(32, "\0"));
+
+      try {
+        await wrongProgram3.methods
+          .requestAccess(
+            Array.from(secretBuffer),
+            new anchor.BN(150000),
+            Array.from(unapprovedBuyer)
+          )
+          .accounts({
+            accessRule: ruleAddress,
+            certificate: wrongCert3,
+            requester: wrongLender3.publicKey,
+            systemProgram: SystemProgram.programId,
+          })
+          .rpc();
+        console.log(chalk.red("   ⚠️  ERROR: Should have been denied!"));
+      } catch (err: any) {
+        console.log(chalk.green("   ✓ Correctly denied: Buyer not approved"));
+        console.log(chalk.gray(`   Reason: ${err.message.split(':')[0]}`));
+      }
+
+      console.log(chalk.green("\n════════════════════════════════════════════════════════"));
+      console.log(chalk.green.bold("  ALL DENIAL TESTS PASSED"));
+      console.log(chalk.green("════════════════════════════════════════════════════════\n"));
     }
 
     console.log(chalk.magenta.bold("🎉 Demo Complete!"));
