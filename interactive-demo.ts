@@ -133,7 +133,7 @@ async function main() {
     console.log();
 
     console.log(chalk.green("✓ Rule stored on Solana blockchain"));
-    console.log(chalk.green("✓ Audit event compressed with Light Protocol"));
+    console.log(chalk.green("✓ Audit event emitted for compliance tracking"));
     console.log();
 
     // Next scenario
@@ -213,18 +213,17 @@ async function main() {
       console.log(chalk.cyan("✓ Invoice Amount: ") + chalk.white(`${invoiceAmount} (meets minimum ${answers.minAmount})`));
       console.log(chalk.cyan("✓ Buyer ID: ") + chalk.white(`${buyerIdToVerify} (approved)`));
       console.log(chalk.cyan("✓ Privacy: ") + chalk.white("Secret verified on-chain without exposure"));
-      console.log(chalk.cyan("✓ Audit: ") + chalk.white("Event compressed with Light Protocol"));
+      console.log(chalk.cyan("✓ Audit: ") + chalk.white("Event captured by Helius for compliance tracking"));
       console.log();
     }
 
     console.log(chalk.magenta.bold("🎉 Demo Complete!"));
-    console.log(chalk.gray("\nAll transactions auditable via compressed events."));
+    console.log(chalk.gray("\nAll transactions auditable via event logs."));
     console.log(chalk.gray("Run the audit compressor to see real-time event capture.\n"));
 
   } catch (error: any) {
     spinner.fail(chalk.red("Transaction failed"));
     console.error(chalk.red("\n❌ Error:"), error.message);
-    console.error(error);
     process.exit(1);
   }
 }
