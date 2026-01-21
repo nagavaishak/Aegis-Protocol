@@ -1,4 +1,5 @@
 use anchor_lang::prelude::*;
+use std::collections::HashMap;
 
 declare_id!("7UDghojWtnQUddeuAmA5q3oqiPfoQCAQySsxTHzyrkAj");
 
@@ -48,6 +49,7 @@ pub mod aegis_protocol {
         rule.valid_until = valid_until;
         rule.owner = ctx.accounts.owner.key();
         rule.is_active = true;
+        rule.is_paused = false;
         rule.bump = ctx.bumps.access_rule;
 
         emit!(RuleCreated {
@@ -71,8 +73,9 @@ pub mod aegis_protocol {
         let rule = &ctx.accounts.access_rule;
         let clock = Clock::get()?;
 
-        // 1. Check rule is active
+        // 1. Check rule is active and not paused
         require!(rule.is_active, ErrorCode::RuleNotActive);
+        require!(!rule.is_paused, ErrorCode::RulePaused);
 
         // 2. Check time bounds
         require!(
@@ -160,8 +163,9 @@ pub mod aegis_protocol {
             ErrorCode::UnauthorizedOwner
         );
         require!(rule.is_active, ErrorCode::RuleAlreadyInactive);
+        require!(!rule.is_paused, ErrorCode::RuleAlreadyPaused);
 
-        rule.is_active = false;
+        rule.is_paused = true;
 
         emit!(RuleRevoked {
             rule_address: rule.key(),
@@ -179,9 +183,10 @@ pub mod aegis_protocol {
             rule.owner == ctx.accounts.owner.key(),
             ErrorCode::UnauthorizedOwner
         );
-        require!(rule.is_active, ErrorCode::RuleAlreadyInactive);
+        require!(rule.is_active, ErrorCode::RuleNotActive);
+        require!(!rule.is_paused, ErrorCode::RuleAlreadyPaused);
 
-        rule.is_active = false;
+        rule.is_paused = true;  // DON'T change is_active
 
         emit!(RulePaused {
             rule_address: rule.key(),
@@ -199,9 +204,10 @@ pub mod aegis_protocol {
             rule.owner == ctx.accounts.owner.key(),
             ErrorCode::UnauthorizedOwner
         );
-        require!(!rule.is_active, ErrorCode::RuleAlreadyActive);
+        require!(rule.is_active, ErrorCode::RuleNotActive);
+        require!(rule.is_paused, ErrorCode::RuleNotPaused);
 
-        rule.is_active = true;
+        rule.is_paused = false;
 
         emit!(RuleResumed {
             rule_address: rule.key(),
@@ -220,17 +226,18 @@ pub mod aegis_protocol {
 pub struct AccessRule {
     pub dataset_id: [u8; 32],           // 32
     pub secret_commitment: [u8; 32],    // 32
-    pub min_amount: u64,                // 8
+    pub min_amount: u64,                // 8 (kept for backward compatibility)
     pub approved_buyer_hashes: Vec<[u8; 32]>, // 4 + (10 * 32) = 324
     pub valid_from: i64,                // 8
     pub valid_until: i64,               // 8
     pub owner: Pubkey,                  // 32
     pub is_active: bool,                // 1
+    pub is_paused: bool,                // 1 (NEW: track pause state separately)
     pub bump: u8,                       // 1
 }
 
 impl AccessRule {
-    pub const MAX_SIZE: usize = 8 + 32 + 32 + 8 + 324 + 8 + 8 + 32 + 1 + 1;
+    pub const MAX_SIZE: usize = 8 + 32 + 32 + 8 + 324 + 8 + 8 + 32 + 1 + 1 + 1;
 }
 
 #[account]
@@ -422,4 +429,13 @@ pub enum ErrorCode {
 
     #[msg("Rule already active")]
     RuleAlreadyActive,
+
+    #[msg("Rule is paused")]
+    RulePaused,
+    
+    #[msg("Rule already paused")]
+    RuleAlreadyPaused,
+    
+    #[msg("Rule is not paused")]
+    RuleNotPaused,
 }

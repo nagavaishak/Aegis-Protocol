@@ -32,7 +32,7 @@ async function main() {
   console.log(chalk.yellow.bold("  Step 1: Create Access Rule"));
   console.log(chalk.yellow("════════════════════════════════════════════════════════\n"));
 
-  const datasetId = "lifecycle-test-001";
+  const datasetId = "lifecycle-v4-001";
   const datasetIdBuffer = Buffer.from(datasetId.padEnd(32, "\0"));
   const secretBuffer = Buffer.from("my-secret".padEnd(32, "\0"));
   const buyerHash1 = Buffer.from("BUYER_42".padEnd(32, "\0"));
