@@ -3,7 +3,7 @@ import { Program, AnchorProvider } from "@coral-xyz/anchor";
 import { AegisProtocol } from "./target/types/aegis_protocol";
 import idl from "./target/idl/aegis_protocol.json";
 
-const PROGRAM_ID = '7UDghojWtnQUddeuAmA5q3oqiPfoQCAQySsxTHzyrkAj';
+const PROGRAM_ID = 'G2EZATTbHmbhYwPngem9vLfVnbCH3MVNZYUbqD9rkR4k';
 
 async function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));

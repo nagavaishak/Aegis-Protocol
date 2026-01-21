@@ -7,7 +7,7 @@ import { Connection, PublicKey } from "@solana/web3.js";
 import chalk from "chalk";
 import fs from "fs";
 
-const PROGRAM_ID = new PublicKey("7UDghojWtnQUddeuAmA5q3oqiPfoQCAQySsxTHzyrkAj");
+const PROGRAM_ID = new PublicKey("G2EZATTbHmbhYwPngem9vLfVnbCH3MVNZYUbqD9rkR4k");
 
 interface AuditLogEntry {
   event_type: string;

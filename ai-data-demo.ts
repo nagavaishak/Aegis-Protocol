@@ -6,7 +6,7 @@ import chalk from "chalk";
 import ora from "ora";
 import fs from "fs";
 
-const PROGRAM_ID = new PublicKey("7UDghojWtnQUddeuAmA5q3oqiPfoQCAQySsxTHzyrkAj");
+const PROGRAM_ID = new PublicKey("G2EZATTbHmbhYwPngem9vLfVnbCH3MVNZYUbqD9rkR4k");
 
 console.log(chalk.magenta.bold("\n╔══════════════════════════════════════════════════════════╗"));
 console.log(chalk.magenta.bold("║                                                          ║"));

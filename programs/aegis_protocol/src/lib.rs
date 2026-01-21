@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("7UDghojWtnQUddeuAmA5q3oqiPfoQCAQySsxTHzyrkAj");
+declare_id!("G2EZATTbHmbhYwPngem9vLfVnbCH3MVNZYUbqD9rkR4k");
 
 /// Aegis Protocol: Privacy-Preserving Access Control Infrastructure
 /// 

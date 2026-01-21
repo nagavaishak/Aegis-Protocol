@@ -4,7 +4,7 @@ import { Keypair, Connection, PublicKey, SystemProgram } from "@solana/web3.js";
 import chalk from "chalk";
 import fs from "fs";
 
-const PROGRAM_ID = new PublicKey("7UDghojWtnQUddeuAmA5q3oqiPfoQCAQySsxTHzyrkAj");
+const PROGRAM_ID = new PublicKey("G2EZATTbHmbhYwPngem9vLfVnbCH3MVNZYUbqD9rkR4k");
 
 async function main() {
   console.log(chalk.cyan.bold("\n╔══════════════════════════════════════════════════════════╗"));
