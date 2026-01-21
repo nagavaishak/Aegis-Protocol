@@ -170,6 +170,46 @@ pub mod aegis_protocol {
 
         Ok(())
     }
+
+    /// Pause a rule temporarily (owner only)
+    pub fn pause_rule(ctx: Context<PauseRule>) -> Result<()> {
+        let rule = &mut ctx.accounts.access_rule;
+        
+        require!(
+            rule.owner == ctx.accounts.owner.key(),
+            ErrorCode::UnauthorizedOwner
+        );
+        require!(rule.is_active, ErrorCode::RuleAlreadyInactive);
+
+        rule.is_active = false;
+
+        emit!(RulePaused {
+            rule_address: rule.key(),
+            timestamp: Clock::get()?.unix_timestamp,
+        });
+
+        Ok(())
+    }
+
+    /// Resume a paused rule (owner only)
+    pub fn resume_rule(ctx: Context<ResumeRule>) -> Result<()> {
+        let rule = &mut ctx.accounts.access_rule;
+        
+        require!(
+            rule.owner == ctx.accounts.owner.key(),
+            ErrorCode::UnauthorizedOwner
+        );
+        require!(!rule.is_active, ErrorCode::RuleAlreadyActive);
+
+        rule.is_active = true;
+
+        emit!(RuleResumed {
+            rule_address: rule.key(),
+            timestamp: Clock::get()?.unix_timestamp,
+        });
+
+        Ok(())
+    }
 }
 
 // ============================================================================
@@ -269,6 +309,22 @@ pub struct RevokeRule<'info> {
     pub owner: Signer<'info>,
 }
 
+#[derive(Accounts)]
+pub struct PauseRule<'info> {
+    #[account(mut)]
+    pub access_rule: Account<'info, AccessRule>,
+    
+    pub owner: Signer<'info>,
+}
+
+#[derive(Accounts)]
+pub struct ResumeRule<'info> {
+    #[account(mut)]
+    pub access_rule: Account<'info, AccessRule>,
+    
+    pub owner: Signer<'info>,
+}
+
 // ============================================================================
 // Events
 // ============================================================================
@@ -300,6 +356,18 @@ pub struct CertificateUsed {
 
 #[event]
 pub struct RuleRevoked {
+    pub rule_address: Pubkey,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct RulePaused {
+    pub rule_address: Pubkey,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct RuleResumed {
     pub rule_address: Pubkey,
     pub timestamp: i64,
 }
@@ -351,4 +419,7 @@ pub enum ErrorCode {
     
     #[msg("Rule already inactive")]
     RuleAlreadyInactive,
+
+    #[msg("Rule already active")]
+    RuleAlreadyActive,
 }
