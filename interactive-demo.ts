@@ -18,7 +18,10 @@ console.log(chalk.cyan.bold("╚════════════════
 
 async function main() {
   // Setup connection
-  const connection = new Connection("http://127.0.0.1:8899", "confirmed");
+  const connection = new Connection(
+    process.env.ANCHOR_PROVIDER_URL || "http://127.0.0.1:8899",
+    "confirmed"
+  );
   
   // Load wallet
   const walletPath = process.env.HOME + "/.config/solana/id.json";
@@ -97,7 +100,7 @@ async function main() {
     const buyerHash1 = Buffer.from(answers.buyerId1.padEnd(32, "\0"));
     const buyerHash2 = Buffer.from(answers.buyerId2.padEnd(32, "\0"));
 
-    const validFrom = Math.floor(Date.now() / 1000) - 60;
+    const validFrom = Math.floor(Date.now() / 1000) - 300; // 5 minutes in the past
     const validUntil = validFrom + 86400;
 
     const [ruleAddress] = PublicKey.findProgramAddressSync(
