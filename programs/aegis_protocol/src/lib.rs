@@ -1,5 +1,4 @@
 use anchor_lang::prelude::*;
-use std::collections::HashMap;
 
 declare_id!("7UDghojWtnQUddeuAmA5q3oqiPfoQCAQySsxTHzyrkAj");
 
@@ -119,6 +118,8 @@ pub mod aegis_protocol {
             rule_address: rule.key(),
             dataset_id: rule.dataset_id,
             requester: ctx.accounts.requester.key(),
+            invoice_amount,
+            buyer_id_hash,
             timestamp: clock.unix_timestamp,
         });
 
@@ -163,9 +164,8 @@ pub mod aegis_protocol {
             ErrorCode::UnauthorizedOwner
         );
         require!(rule.is_active, ErrorCode::RuleAlreadyInactive);
-        require!(!rule.is_paused, ErrorCode::RuleAlreadyPaused);
 
-        rule.is_paused = true;
+        rule.is_active = false;
 
         emit!(RuleRevoked {
             rule_address: rule.key(),
@@ -186,7 +186,7 @@ pub mod aegis_protocol {
         require!(rule.is_active, ErrorCode::RuleNotActive);
         require!(!rule.is_paused, ErrorCode::RuleAlreadyPaused);
 
-        rule.is_paused = true;  // DON'T change is_active
+        rule.is_paused = true;
 
         emit!(RulePaused {
             rule_address: rule.key(),
@@ -226,13 +226,13 @@ pub mod aegis_protocol {
 pub struct AccessRule {
     pub dataset_id: [u8; 32],           // 32
     pub secret_commitment: [u8; 32],    // 32
-    pub min_amount: u64,                // 8 (kept for backward compatibility)
+    pub min_amount: u64,                // 8
     pub approved_buyer_hashes: Vec<[u8; 32]>, // 4 + (10 * 32) = 324
     pub valid_from: i64,                // 8
     pub valid_until: i64,               // 8
     pub owner: Pubkey,                  // 32
     pub is_active: bool,                // 1
-    pub is_paused: bool,                // 1 (NEW: track pause state separately)
+    pub is_paused: bool,                // 1
     pub bump: u8,                       // 1
 }
 
@@ -351,6 +351,17 @@ pub struct AccessGranted {
     pub rule_address: Pubkey,
     pub dataset_id: [u8; 32],
     pub requester: Pubkey,
+    pub invoice_amount: u64,
+    pub buyer_id_hash: [u8; 32],
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct AccessDenied {
+    pub rule_address: Pubkey,
+    pub dataset_id: [u8; 32],
+    pub requester: Pubkey,
+    pub denial_reason: String,
     pub timestamp: i64,
 }
 
