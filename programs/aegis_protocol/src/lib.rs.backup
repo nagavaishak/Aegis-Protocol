@@ -2,74 +2,48 @@ use anchor_lang::prelude::*;
 
 declare_id!("G2EZATTbHmbhYwPngem9vLfVnbCH3MVNZYUbqD9rkR4k");
 
-/// Aegis Protocol: Secrets-as-a-Service Infrastructure for Autonomous Systems
+/// Aegis Protocol: Privacy-Preserving Access Control Infrastructure
 /// 
 /// DESIGN PHILOSOPHY:
-/// Aegis is a Solana-native policy enforcement and authorization layer that enables
-/// autonomous actors (AI agents, protocols, enterprises) to interact with private data
-/// through cryptographic verification—without exposing the data itself.
-/// 
-/// CORE PRIMITIVES:
-/// - Confidential Policy Definition: Data owners set access rules (thresholds, identities, conditions)
-/// - Request Authorization: Autonomous actors request access with cryptographic proofs
-/// - Policy Verification: On-chain enforcement without revealing private data
-/// - Certificate Issuance: Time-bound, single-purpose access tokens
-/// - Audit Trail: Every access attempt logged for compliance
-/// 
-/// USE CASE EXAMPLES (Infrastructure applies across domains):
-/// - AI Agents: Access training datasets under governance constraints
-/// - Synthetic Data: Prove data generated within policy boundaries
-/// - RWA Verification: Verify asset value + custody without exposing owner
-/// - Enterprise Systems: Autonomous access to confidential resources
-/// - Invoice Factoring: Verify invoice criteria without exposing details
+/// This protocol provides general-purpose access control primitives that work across domains:
+/// - Invoice Factoring: Verify invoice amount + buyer without exposing details
+/// - Carbon Credits: Verify credit value + issuer without revealing buyer
+/// - RWA Collateral: Verify asset value + custody without exposing owner
+/// - Supply Chain: Verify conditions (temp, location) without revealing supplier
 /// 
 /// PRIVACY MODEL:
-/// - Policies are public (rules for access)
-/// - Data remains private (values never on-chain)
+/// - Rules are public (who can access, under what conditions)
+/// - Data is private (actual values never on-chain)
 /// - Verification is cryptographic (hash-based commitments)
-/// - Audit trail is transparent (event emission for compression)
-/// 
-/// NOTE: Aegis does not perform confidential computation. It authorizes and verifies
-/// results produced by confidential compute providers such as Arcium.
+/// - Audit trail is preserved (event emission for compression)
+
 
 #[program]
 pub mod aegis_protocol {
     use super::*;
 
-    /// Create a confidential access policy
-    /// 
-    /// PARAMETERS:
-    /// - dataset_id: Unique identifier for the protected resource
-    /// - secret_commitment: Hash of the access secret (never stored in plaintext)
-    /// - policy_threshold: Minimum value/quantity required (e.g., dataset size, asset value)
-    /// - allowed_identity_hashes: Cryptographic hashes of approved requesters
-    /// - valid_from/valid_until: Policy validity window
-    /// 
-    /// USE CASES:
-    /// - AI Agent: "Allow access to dataset if ≥1M samples from approved providers"
-    /// - RWA Protocol: "Allow collateral use if value ≥$100k from approved custodian"
-    /// - Enterprise: "Allow API access if requester has valid credential hash"
+    /// Create an access rule with approved buyers and minimum amount
     pub fn create_rule(
         ctx: Context<CreateRule>,
         dataset_id: [u8; 32],
         secret_commitment: [u8; 32],
-        policy_threshold: u64,
-        allowed_identity_hashes: Vec<[u8; 32]>,
+        min_amount: u64,
+        approved_buyer_hashes: Vec<[u8; 32]>,
         valid_from: i64,
         valid_until: i64,
     ) -> Result<()> {
         require!(
-            allowed_identity_hashes.len() <= 10,
-            ErrorCode::TooManyIdentities
+            approved_buyer_hashes.len() <= 10,
+            ErrorCode::TooManyBuyers
         );
-        require!(policy_threshold > 0, ErrorCode::InvalidThreshold);
+        require!(min_amount > 0, ErrorCode::InvalidAmount);
         require!(valid_until > valid_from, ErrorCode::InvalidTimeRange);
 
         let rule = &mut ctx.accounts.access_rule;
         rule.dataset_id = dataset_id;
         rule.secret_commitment = secret_commitment;
-        rule.policy_threshold = policy_threshold;
-        rule.allowed_identity_hashes = allowed_identity_hashes;
+        rule.min_amount = min_amount;
+        rule.approved_buyer_hashes = approved_buyer_hashes;
         rule.valid_from = valid_from;
         rule.valid_until = valid_until;
         rule.owner = ctx.accounts.owner.key();
@@ -81,22 +55,19 @@ pub mod aegis_protocol {
             rule_address: rule.key(),
             dataset_id,
             owner: ctx.accounts.owner.key(),
-            policy_threshold,
-            identity_count: rule.allowed_identity_hashes.len() as u8,
+            min_amount,
+            buyer_count: rule.approved_buyer_hashes.len() as u8,
         });
 
         Ok(())
     }
 
-    /// Request access by proving policy compliance
-    /// 
-    /// Autonomous actors (AI agents, protocols) submit cryptographic proof
-    /// that they meet the policy requirements without revealing private data.
+    /// Request access by proving you know the secret
     pub fn request_access(
         ctx: Context<RequestAccess>,
         secret: [u8; 32],
-        data_value: u64,
-        identity_hash: [u8; 32],
+        invoice_amount: u64,
+        buyer_id_hash: [u8; 32],
     ) -> Result<()> {
         let rule = &ctx.accounts.access_rule;
         let clock = Clock::get()?;
@@ -115,25 +86,25 @@ pub mod aegis_protocol {
             ErrorCode::RuleExpired
         );
 
-        // 3. Verify secret commitment (cryptographic proof of access right)
+        // 3. Verify secret commitment (direct comparison for MVP)
         require!(
             secret == rule.secret_commitment,
             ErrorCode::InvalidSecret
         );
 
-        // 4. Verify data value meets threshold
+        // 4. Verify invoice amount
         require!(
-            data_value >= rule.policy_threshold,
-            ErrorCode::InsufficientValue
+            invoice_amount >= rule.min_amount,
+            ErrorCode::InsufficientAmount
         );
 
-        // 5. Verify identity is allowed
+        // 5. Verify buyer is approved
         require!(
-            rule.allowed_identity_hashes.contains(&identity_hash),
-            ErrorCode::IdentityNotApproved
+            rule.approved_buyer_hashes.contains(&buyer_id_hash),
+            ErrorCode::BuyerNotApproved
         );
 
-        // 6. Issue access certificate
+        // 6. Issue certificate
         let cert = &mut ctx.accounts.certificate;
         cert.dataset_id = rule.dataset_id;
         cert.rule_address = rule.key();
@@ -147,21 +118,18 @@ pub mod aegis_protocol {
             rule_address: rule.key(),
             dataset_id: rule.dataset_id,
             requester: ctx.accounts.requester.key(),
-            data_value,
-            identity_hash,
+            invoice_amount,
+            buyer_id_hash,
             timestamp: clock.unix_timestamp,
         });
 
         Ok(())
     }
 
-    /// Use certificate to authorize action
-    /// 
-    /// After policy verification, the certificate authorizes a specific action
-    /// (e.g., AI training run, data access, computation execution)
+    /// Use certificate (for audit trail)
     pub fn use_certificate(
         ctx: Context<UseCertificate>,
-        action_result: bool,
+        computation_result: bool,
     ) -> Result<()> {
         let cert = &mut ctx.accounts.certificate;
         let clock = Clock::get()?;
@@ -180,14 +148,14 @@ pub mod aegis_protocol {
 
         emit!(CertificateUsed {
             certificate_address: cert.key(),
-            action_result,
+            computation_result,
             timestamp: clock.unix_timestamp,
         });
 
         Ok(())
     }
 
-    /// Revoke a policy (owner only) - permanent deactivation
+    /// Revoke a rule (owner only)
     pub fn revoke_rule(ctx: Context<RevokeRule>) -> Result<()> {
         let rule = &mut ctx.accounts.access_rule;
         
@@ -207,7 +175,7 @@ pub mod aegis_protocol {
         Ok(())
     }
 
-    /// Pause a policy temporarily (owner only) - emergency shutdown
+    /// Pause a rule temporarily (owner only)
     pub fn pause_rule(ctx: Context<PauseRule>) -> Result<()> {
         let rule = &mut ctx.accounts.access_rule;
         
@@ -228,7 +196,7 @@ pub mod aegis_protocol {
         Ok(())
     }
 
-    /// Resume a paused policy (owner only) - reactivation
+    /// Resume a paused rule (owner only)
     pub fn resume_rule(ctx: Context<ResumeRule>) -> Result<()> {
         let rule = &mut ctx.accounts.access_rule;
         
@@ -256,16 +224,16 @@ pub mod aegis_protocol {
 
 #[account]
 pub struct AccessRule {
-    pub dataset_id: [u8; 32],           // 32 - Protected resource identifier
-    pub secret_commitment: [u8; 32],    // 32 - Cryptographic proof requirement
-    pub policy_threshold: u64,          // 8  - Minimum value/quantity required
-    pub allowed_identity_hashes: Vec<[u8; 32]>, // 4 + (10 * 32) = 324 - Approved requesters
-    pub valid_from: i64,                // 8  - Policy start time
-    pub valid_until: i64,               // 8  - Policy expiration
-    pub owner: Pubkey,                  // 32 - Policy creator
-    pub is_active: bool,                // 1  - Permanent deactivation flag
-    pub is_paused: bool,                // 1  - Temporary pause flag
-    pub bump: u8,                       // 1  - PDA bump seed
+    pub dataset_id: [u8; 32],           // 32
+    pub secret_commitment: [u8; 32],    // 32
+    pub min_amount: u64,                // 8
+    pub approved_buyer_hashes: Vec<[u8; 32]>, // 4 + (10 * 32) = 324
+    pub valid_from: i64,                // 8
+    pub valid_until: i64,               // 8
+    pub owner: Pubkey,                  // 32
+    pub is_active: bool,                // 1
+    pub is_paused: bool,                // 1
+    pub bump: u8,                       // 1
 }
 
 impl AccessRule {
@@ -274,12 +242,12 @@ impl AccessRule {
 
 #[account]
 pub struct AccessCertificate {
-    pub dataset_id: [u8; 32],      // 32 - Associated resource
-    pub rule_address: Pubkey,      // 32 - Policy that authorized this
-    pub requester: Pubkey,         // 32 - Autonomous actor/agent
-    pub valid_until: i64,          // 8  - Certificate expiration
-    pub is_used: bool,             // 1  - Single-use flag
-    pub bump: u8,                  // 1  - PDA bump seed
+    pub dataset_id: [u8; 32],      // 32
+    pub rule_address: Pubkey,      // 32
+    pub requester: Pubkey,         // 32
+    pub valid_until: i64,          // 8
+    pub is_used: bool,             // 1
+    pub bump: u8,                  // 1
 }
 
 impl AccessCertificate {
@@ -365,7 +333,7 @@ pub struct ResumeRule<'info> {
 }
 
 // ============================================================================
-// Events (Designed for Light Protocol ZK Compression)
+// Events
 // ============================================================================
 
 #[event]
@@ -373,8 +341,8 @@ pub struct RuleCreated {
     pub rule_address: Pubkey,
     pub dataset_id: [u8; 32],
     pub owner: Pubkey,
-    pub policy_threshold: u64,
-    pub identity_count: u8,
+    pub min_amount: u64,
+    pub buyer_count: u8,
 }
 
 #[event]
@@ -383,8 +351,8 @@ pub struct AccessGranted {
     pub rule_address: Pubkey,
     pub dataset_id: [u8; 32],
     pub requester: Pubkey,
-    pub data_value: u64,
-    pub identity_hash: [u8; 32],
+    pub invoice_amount: u64,
+    pub buyer_id_hash: [u8; 32],
     pub timestamp: i64,
 }
 
@@ -400,7 +368,7 @@ pub struct AccessDenied {
 #[event]
 pub struct CertificateUsed {
     pub certificate_address: Pubkey,
-    pub action_result: bool,
+    pub computation_result: bool,
     pub timestamp: i64,
 }
 
@@ -428,11 +396,11 @@ pub struct RuleResumed {
 
 #[error_code]
 pub enum ErrorCode {
-    #[msg("Too many approved identities (max 10)")]
-    TooManyIdentities,
+    #[msg("Too many approved buyers (max 10)")]
+    TooManyBuyers,
     
-    #[msg("Invalid threshold (must be > 0)")]
-    InvalidThreshold,
+    #[msg("Invalid amount (must be > 0)")]
+    InvalidAmount,
     
     #[msg("Invalid time range (valid_until must be > valid_from)")]
     InvalidTimeRange,
@@ -449,11 +417,11 @@ pub enum ErrorCode {
     #[msg("Invalid secret")]
     InvalidSecret,
     
-    #[msg("Data value below policy threshold")]
-    InsufficientValue,
+    #[msg("Invoice amount below minimum")]
+    InsufficientAmount,
     
-    #[msg("Identity not in approved list")]
-    IdentityNotApproved,
+    #[msg("Buyer not in approved list")]
+    BuyerNotApproved,
     
     #[msg("Certificate already used")]
     CertificateAlreadyUsed,

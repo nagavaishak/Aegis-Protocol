@@ -12,7 +12,7 @@ const PROGRAM_ID = new PublicKey("G2EZATTbHmbhYwPngem9vLfVnbCH3MVNZYUbqD9rkR4k")
 console.log(chalk.cyan.bold("\n╔══════════════════════════════════════════════════════════╗"));
 console.log(chalk.cyan.bold("║                                                          ║"));
 console.log(chalk.cyan.bold("║           🔐  AEGIS PROTOCOL - DEMO                     ║"));
-console.log(chalk.cyan.bold("║     Privacy-Preserving Invoice Verification System       ║"));
+console.log(chalk.cyan.bold("║     Secrets-as-a-Service for Autonomous Systems          ║"));
 console.log(chalk.cyan.bold("║                                                          ║"));
 console.log(chalk.cyan.bold("╚══════════════════════════════════════════════════════════╝\n"));
 
@@ -41,64 +41,72 @@ async function main() {
 
   const program = new Program(idl, provider);
 
-  console.log(chalk.green("✓ Connected to local validator"));
+  console.log(chalk.green("✓ Connected to Solana"));
   console.log(chalk.green(`✓ Wallet: ${wallet.publicKey.toString().slice(0, 8)}...`));
   console.log();
+
+  console.log(chalk.white("═══════════════════════════════════════════════════════════"));
+  console.log(chalk.white("  DEMONSTRATION: Confidential Policy Enforcement"));
+  console.log(chalk.white("═══════════════════════════════════════════════════════════\n"));
+
+  console.log(chalk.gray("This demo shows Aegis enforcing access control for autonomous systems."));
+  console.log(chalk.gray("Example domain: Invoice factoring (same protocol works across use cases)"));
+  console.log(chalk.gray("Policy enforced: data_value ≥ threshold AND identity IN approved_list\n"));
 
   // Interactive prompts
   const answers = await inquirer.prompt([
     {
       type: "input",
       name: "datasetId",
-      message: "Enter Invoice/Dataset ID:",
-      default: "invoice-001",
+      message: "Protected Dataset ID (e.g., invoice-001, dataset-alpha):",
+      default: "dataset-001",
       validate: (input) => input.length > 0 || "Required field",
     },
     {
       type: "password",
       name: "secret",
-      message: "Enter Secret Key:",
+      message: "Access Secret (never stored on-chain):",
       default: "my-secret-key",
       mask: "*",
       validate: (input) => input.length > 0 || "Required field",
     },
     {
       type: "input",
-      name: "minAmount",
-      message: "Minimum Invoice Amount:",
+      name: "threshold",
+      message: "Policy Threshold (minimum amount):",
       default: "100000",
       validate: (input) => !isNaN(Number(input)) || "Must be a number",
     },
     {
       type: "input",
-      name: "buyerId1",
-      message: "Approved Buyer ID #1:",
-      default: "BUYER_42",
+      name: "identity1",
+      message: "Allowed Identity #1 (e.g., ENTITY_42, PROVIDER_A):",
+      default: "ENTITY_42",
       validate: (input) => input.length > 0 || "Required field",
     },
     {
       type: "input",
-      name: "buyerId2",
-      message: "Approved Buyer ID #2:",
-      default: "BUYER_99",
+      name: "identity2",
+      message: "Allowed Identity #2 (e.g., ENTITY_99, PROVIDER_B):",
+      default: "ENTITY_99",
       validate: (input) => input.length > 0 || "Required field",
     },
   ]);
 
   console.log();
   console.log(chalk.yellow("════════════════════════════════════════════════════════"));
-  console.log(chalk.yellow.bold("  SCENARIO: SME Creates Access Rule"));
+  console.log(chalk.yellow.bold("  SCENARIO: Confidential Policy Creation"));
   console.log(chalk.yellow("════════════════════════════════════════════════════════"));
   console.log();
 
   // Create rule
-  const spinner = ora("Creating access rule on-chain...").start();
+  const spinner = ora("Data Owner defining confidential policy...").start();
 
   try {
     const datasetIdBuffer = Buffer.from(answers.datasetId.padEnd(32, "\0"));
     const secretBuffer = Buffer.from(answers.secret.padEnd(32, "\0"));
-    const buyerHash1 = Buffer.from(answers.buyerId1.padEnd(32, "\0"));
-    const buyerHash2 = Buffer.from(answers.buyerId2.padEnd(32, "\0"));
+    const identityHash1 = Buffer.from(answers.identity1.padEnd(32, "\0"));
+    const identityHash2 = Buffer.from(answers.identity2.padEnd(32, "\0"));
 
     const validFrom = Math.floor(Date.now() / 1000) - 300; // 5 minutes in the past
     const validUntil = validFrom + 86400;
@@ -112,8 +120,8 @@ async function main() {
       .createRule(
         Array.from(datasetIdBuffer),
         Array.from(secretBuffer),
-        new anchor.BN(answers.minAmount),
-        [Array.from(buyerHash1), Array.from(buyerHash2)],
+        new anchor.BN(answers.threshold),
+        [Array.from(identityHash1), Array.from(identityHash2)],
         new anchor.BN(validFrom),
         new anchor.BN(validUntil)
       )
@@ -124,24 +132,24 @@ async function main() {
       })
       .rpc();
 
-    spinner.succeed(chalk.green.bold("Rule Created Successfully!"));
+    spinner.succeed(chalk.green.bold("Policy Created Successfully!"));
     
     console.log();
-    console.log(chalk.cyan("📋 Transaction Details:"));
-    console.log(chalk.gray(`   Signature: ${tx}`));
-    console.log(chalk.gray(`   Rule Address: ${ruleAddress.toString()}`));
+    console.log(chalk.cyan("📋 Policy Details:"));
+    console.log(chalk.gray(`   Transaction: ${tx}`));
+    console.log(chalk.gray(`   Policy Address: ${ruleAddress.toString()}`));
     console.log(chalk.gray(`   Dataset ID: ${answers.datasetId}`));
-    console.log(chalk.gray(`   Min Amount: ${answers.minAmount}`));
-    console.log(chalk.gray(`   Approved Buyers: ${answers.buyerId1}, ${answers.buyerId2}`));
+    console.log(chalk.gray(`   Policy Threshold: ${answers.threshold}`));
+    console.log(chalk.gray(`   Allowed Identities: ${answers.identity1}, ${answers.identity2}`));
     console.log();
 
-    console.log(chalk.green("✓ Rule stored on Solana blockchain"));
+    console.log(chalk.green("✓ Policy stored on-chain (rules public, data private)"));
     console.log(chalk.green("✓ Audit event emitted for compliance tracking"));
     console.log();
 
     // Next scenario
     console.log(chalk.yellow("════════════════════════════════════════════════════════"));
-    console.log(chalk.yellow.bold("  SCENARIO: Lender Requests Verification"));
+    console.log(chalk.yellow.bold("  SCENARIO: Autonomous Actor Requests Access"));
     console.log(chalk.yellow("════════════════════════════════════════════════════════"));
     console.log();
 
@@ -149,22 +157,22 @@ async function main() {
       {
         type: "confirm",
         name: "proceed",
-        message: "Proceed with lender verification demo?",
+        message: "Proceed with access request demo?",
         default: true,
       },
     ]);
 
-    const buyerIdToVerify = answers.buyerId1;
-    const buyerIdBuffer = Buffer.from(buyerIdToVerify.padEnd(32, "\0"));
+    const identityToVerify = answers.identity1;
+    const identityBuffer = Buffer.from(identityToVerify.padEnd(32, "\0"));
 
     if (verifyAnswers.proceed) {
-      const requestSpinner = ora("Lender requesting verification certificate...").start();
+      const requestSpinner = ora("Autonomous actor requesting access certificate...").start();
 
-      // Generate lender keypair
-      const lender = Keypair.generate();
+      // Generate requester keypair
+      const requester = Keypair.generate();
 
-      // Airdrop to lender
-      await connection.requestAirdrop(lender.publicKey, 1000000000);
+      // Airdrop to requester
+      await connection.requestAirdrop(requester.publicKey, 1000000000);
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Calculate certificate PDA
@@ -172,82 +180,82 @@ async function main() {
         [
           Buffer.from("certificate"),
           ruleAddress.toBuffer(),
-          lender.publicKey.toBuffer(),
+          requester.publicKey.toBuffer(),
         ],
         PROGRAM_ID
       );
 
-      const lenderWallet = new Wallet(lender);
-      const lenderProvider = new AnchorProvider(
+      const requesterWallet = new Wallet(requester);
+      const requesterProvider = new AnchorProvider(
         connection,
-        lenderWallet,
+        requesterWallet,
         { commitment: "confirmed" }
       );
-      const lenderProgram = new Program(idl, lenderProvider);
+      const requesterProgram = new Program(idl, requesterProvider);
 
-      // Lender provides invoice details for verification
-      const invoiceAmount = 150000; // Meets minimum
+      // Requester provides proof of compliance
+      const dataValue = 150000; // Meets threshold
 
-      await lenderProgram.methods
+      await requesterProgram.methods
         .requestAccess(
           Array.from(secretBuffer),
-          new anchor.BN(invoiceAmount),
-          Array.from(buyerIdBuffer)
+          new anchor.BN(dataValue),
+          Array.from(identityBuffer)
         )
         .accounts({
           accessRule: ruleAddress,
           certificate: certificatePda,
-          requester: lender.publicKey,
+          requester: requester.publicKey,
           systemProgram: SystemProgram.programId,
         })
         .rpc();
 
-      requestSpinner.succeed(chalk.green.bold("✅ Verification Certificate Issued!"));
+      requestSpinner.succeed(chalk.green.bold("✅ Access Certificate Issued!"));
       
       console.log();
       console.log(chalk.cyan("📋 Certificate Details:"));
-      console.log(chalk.gray(`   Lender: ${lender.publicKey.toString().slice(0, 8)}...`));
+      console.log(chalk.gray(`   Requester: ${requester.publicKey.toString().slice(0, 8)}...`));
       console.log(chalk.gray(`   Certificate: ${certificatePda.toString().slice(0, 8)}...`));
       console.log();
       
       console.log(chalk.green("════════════════════════════════════════════════════════"));
-      console.log(chalk.green.bold("  VERIFICATION SUCCESSFUL"));
+      console.log(chalk.green.bold("  RESULT: Policy Satisfied — Certificate Issued"));
       console.log(chalk.green("════════════════════════════════════════════════════════"));
       console.log();
-      console.log(chalk.cyan("✓ Invoice Amount: ") + chalk.white(`${invoiceAmount} (meets minimum ${answers.minAmount})`));
-      console.log(chalk.cyan("✓ Buyer ID: ") + chalk.white(`${buyerIdToVerify} (approved)`));
-      console.log(chalk.cyan("✓ Privacy: ") + chalk.white("Secret verified on-chain without exposure"));
-      console.log(chalk.cyan("✓ Audit: ") + chalk.white("Event captured by Helius for compliance tracking"));
+      console.log(chalk.cyan("✓ Data Value: ") + chalk.white(`${dataValue} (meets threshold ${answers.threshold})`));
+      console.log(chalk.cyan("✓ Identity: ") + chalk.white(`${identityToVerify} (approved)`));
+      console.log(chalk.cyan("✓ Privacy: ") + chalk.white("Secret verified cryptographically, never exposed"));
+      console.log(chalk.cyan("✓ Audit: ") + chalk.white("Event captured for compliance tracking"));
       console.log();
     }
 
-    // PHASE 1: DENIAL SCENARIOS
+    // DENIAL SCENARIOS - Testing Policy Enforcement
     console.log(chalk.yellow("\n════════════════════════════════════════════════════════"));
-    console.log(chalk.yellow.bold("  TESTING DENIAL SCENARIOS"));
+    console.log(chalk.yellow.bold("  TESTING: Policy Enforcement (Denial Scenarios)"));
     console.log(chalk.yellow("════════════════════════════════════════════════════════\n"));
 
     const denialAnswers = await inquirer.prompt([
       {
         type: "confirm",
         name: "testDenials",
-        message: "Test access denial scenarios (wrong secret, low amount, unapproved buyer)?",
+        message: "Test policy enforcement (wrong secret, low value, unauthorized identity)?",
         default: true,
       },
     ]);
 
     if (denialAnswers.testDenials) {
       // SCENARIO 1: Wrong Secret
-      console.log(chalk.red("\n❌ Test 1: Wrong Secret"));
-      const wrongLender1 = Keypair.generate();
-      await connection.requestAirdrop(wrongLender1.publicKey, 1000000000);
+      console.log(chalk.red("\n❌ Test 1: Invalid Secret"));
+      const wrongRequester1 = Keypair.generate();
+      await connection.requestAirdrop(wrongRequester1.publicKey, 1000000000);
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const [wrongCert1] = PublicKey.findProgramAddressSync(
-        [Buffer.from("certificate"), ruleAddress.toBuffer(), wrongLender1.publicKey.toBuffer()],
+        [Buffer.from("certificate"), ruleAddress.toBuffer(), wrongRequester1.publicKey.toBuffer()],
         PROGRAM_ID
       );
 
-      const wrongWallet1 = new Wallet(wrongLender1);
+      const wrongWallet1 = new Wallet(wrongRequester1);
       const wrongProvider1 = new AnchorProvider(connection, wrongWallet1, { commitment: "confirmed" });
       const wrongProgram1 = new Program(idl, wrongProvider1);
 
@@ -258,12 +266,12 @@ async function main() {
           .requestAccess(
             Array.from(wrongSecret),
             new anchor.BN(150000),
-            Array.from(buyerIdBuffer)
+            Array.from(identityBuffer)
           )
           .accounts({
             accessRule: ruleAddress,
             certificate: wrongCert1,
-            requester: wrongLender1.publicKey,
+            requester: wrongRequester1.publicKey,
             systemProgram: SystemProgram.programId,
           })
           .rpc();
@@ -273,18 +281,18 @@ async function main() {
         console.log(chalk.gray(`   Reason: ${err.message.split(':')[0]}`));
       }
 
-      // SCENARIO 2: Amount Too Low
-      console.log(chalk.red("\n❌ Test 2: Invoice Amount Below Threshold"));
-      const wrongLender2 = Keypair.generate();
-      await connection.requestAirdrop(wrongLender2.publicKey, 1000000000);
+      // SCENARIO 2: Value Below Threshold
+      console.log(chalk.red("\n❌ Test 2: Data Value Below Policy Threshold"));
+      const wrongRequester2 = Keypair.generate();
+      await connection.requestAirdrop(wrongRequester2.publicKey, 1000000000);
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const [wrongCert2] = PublicKey.findProgramAddressSync(
-        [Buffer.from("certificate"), ruleAddress.toBuffer(), wrongLender2.publicKey.toBuffer()],
+        [Buffer.from("certificate"), ruleAddress.toBuffer(), wrongRequester2.publicKey.toBuffer()],
         PROGRAM_ID
       );
 
-      const wrongWallet2 = new Wallet(wrongLender2);
+      const wrongWallet2 = new Wallet(wrongRequester2);
       const wrongProvider2 = new AnchorProvider(connection, wrongWallet2, { commitment: "confirmed" });
       const wrongProgram2 = new Program(idl, wrongProvider2);
 
@@ -292,67 +300,67 @@ async function main() {
         await wrongProgram2.methods
           .requestAccess(
             Array.from(secretBuffer),
-            new anchor.BN(50000), // Below minimum
-            Array.from(buyerIdBuffer)
+            new anchor.BN(50000), // Below threshold
+            Array.from(identityBuffer)
           )
           .accounts({
             accessRule: ruleAddress,
             certificate: wrongCert2,
-            requester: wrongLender2.publicKey,
+            requester: wrongRequester2.publicKey,
             systemProgram: SystemProgram.programId,
           })
           .rpc();
         console.log(chalk.red("   ⚠️  ERROR: Should have been denied!"));
       } catch (err: any) {
-        console.log(chalk.green("   ✓ Correctly denied: Amount below threshold"));
+        console.log(chalk.green("   ✓ Correctly denied: Value below threshold"));
         console.log(chalk.gray(`   Reason: ${err.message.split(':')[0]}`));
       }
 
-      // SCENARIO 3: Unapproved Buyer
-      console.log(chalk.red("\n❌ Test 3: Unapproved Buyer"));
-      const wrongLender3 = Keypair.generate();
-      await connection.requestAirdrop(wrongLender3.publicKey, 1000000000);
+      // SCENARIO 3: Unauthorized Identity
+      console.log(chalk.red("\n❌ Test 3: Unauthorized Identity"));
+      const wrongRequester3 = Keypair.generate();
+      await connection.requestAirdrop(wrongRequester3.publicKey, 1000000000);
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const [wrongCert3] = PublicKey.findProgramAddressSync(
-        [Buffer.from("certificate"), ruleAddress.toBuffer(), wrongLender3.publicKey.toBuffer()],
+        [Buffer.from("certificate"), ruleAddress.toBuffer(), wrongRequester3.publicKey.toBuffer()],
         PROGRAM_ID
       );
 
-      const wrongWallet3 = new Wallet(wrongLender3);
+      const wrongWallet3 = new Wallet(wrongRequester3);
       const wrongProvider3 = new AnchorProvider(connection, wrongWallet3, { commitment: "confirmed" });
       const wrongProgram3 = new Program(idl, wrongProvider3);
 
-      const unapprovedBuyer = Buffer.from("BUYER_UNKNOWN".padEnd(32, "\0"));
+      const unauthorizedIdentity = Buffer.from("ENTITY_UNKNOWN".padEnd(32, "\0"));
 
       try {
         await wrongProgram3.methods
           .requestAccess(
             Array.from(secretBuffer),
             new anchor.BN(150000),
-            Array.from(unapprovedBuyer)
+            Array.from(unauthorizedIdentity)
           )
           .accounts({
             accessRule: ruleAddress,
             certificate: wrongCert3,
-            requester: wrongLender3.publicKey,
+            requester: wrongRequester3.publicKey,
             systemProgram: SystemProgram.programId,
           })
           .rpc();
         console.log(chalk.red("   ⚠️  ERROR: Should have been denied!"));
       } catch (err: any) {
-        console.log(chalk.green("   ✓ Correctly denied: Buyer not approved"));
+        console.log(chalk.green("   ✓ Correctly denied: Identity not approved"));
         console.log(chalk.gray(`   Reason: ${err.message.split(':')[0]}`));
       }
 
       console.log(chalk.green("\n════════════════════════════════════════════════════════"));
-      console.log(chalk.green.bold("  ALL DENIAL TESTS PASSED"));
+      console.log(chalk.green.bold("  ALL ENFORCEMENT TESTS PASSED"));
       console.log(chalk.green("════════════════════════════════════════════════════════\n"));
     }
 
     console.log(chalk.magenta.bold("🎉 Demo Complete!"));
     console.log(chalk.gray("\nAll transactions auditable via event logs."));
-    console.log(chalk.gray("Run the audit compressor to see real-time event capture.\n"));
+    console.log(chalk.gray("Aegis protects intent, not data.\n"));
 
   } catch (error: any) {
     spinner.fail(chalk.red("Transaction failed"));
