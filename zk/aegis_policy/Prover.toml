@@ -1,0 +1,6 @@
+# Private input (never revealed on-chain)
+secret_value = "150000"
+
+# Public inputs (on-chain policy data)
+commitment = "0x058c0d9b9a89a5b2525864c553e0ecbf45596b2165b88171e555372d7bff236d"
+threshold = "100000"
