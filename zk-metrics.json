@@ -1,0 +1,21 @@
+{
+  "circuit": {
+    "source": "zk/aegis_policy/src/main.nr",
+    "lines_of_code": 30,
+    "language": "Noir v0.36.0",
+    "hash_function": "Pedersen",
+    "proving_system": "Barretenberg"
+  },
+  "performance": {
+    "witness_generation_ms": 19,
+    "proof_generation_ms": 4302,
+    "proof_verification_ms": 3096,
+    "total_time_ms": 7417
+  },
+  "proof": {
+    "size_bytes": 2144,
+    "public_inputs_count": 2,
+    "verification_result": "VALID"
+  },
+  "timestamp": "2026-01-22T18:50:51.750Z"
+}

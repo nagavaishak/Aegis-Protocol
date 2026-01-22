@@ -1,0 +1,14 @@
+{
+  "certificate_pda": "4ZvABqgGLuCiKeZVzra4sZMLn9HPzAysHU8a8bCoPP9A",
+  "transaction": "2gCDbND8CBnn4TrnRwvWinKhHn1eLTKm16mCo3d7ZGF7Xa3hMdsKcR61ASpVKYjiioWk4ruTw36ckh2BhhatLLE",
+  "zk_attestation": {
+    "proof_hash": "0x4c9b4e9dfdf597938d17ef60f6fccf87137169140e94cb35dec0b87b013b8aca",
+    "public_inputs": [
+      "0x058c0d9b9a89a5b2525864c553e0ecbf45596b2165b88171e555372d7bff236d",
+      "0x00000000000000000000000000000000000000000000000000000000000186a0"
+    ],
+    "verifier": "barretenberg-v0.36.0",
+    "circuit": "aegis_policy",
+    "timestamp": 1769107932822
+  }
+}
