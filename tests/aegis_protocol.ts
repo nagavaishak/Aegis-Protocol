@@ -49,8 +49,8 @@ describe("aegis_protocol", () => {
 
     // Verify rule
     const rule = await program.account.accessRule.fetch(ruleAddress);
-    expect(rule.minAmount.toNumber()).to.equal(100000);
-    expect(rule.approvedBuyerHashes.length).to.equal(2);
+    expect(rule.policyThreshold.toNumber()).to.equal(100000);
+    expect(rule.allowedIdentityHashes.length).to.equal(2);
     expect(rule.isActive).to.be.true;
   });
 
@@ -187,7 +187,7 @@ describe("aegis_protocol", () => {
       
       expect.fail("Should have thrown error");
     } catch (err) {
-      expect(err.toString()).to.include("InsufficientAmount");
+      expect(err.toString()).to.include("InsufficientValue");
       console.log("✅ Correctly rejected insufficient amount");
     }
   });
