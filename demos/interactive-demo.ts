@@ -6,7 +6,7 @@ import chalk from "chalk";
 import ora from "ora";
 import fs from "fs";
 
-const PROGRAM_ID = new PublicKey("G2EZATTbHmbhYwPngem9vLfVnbCH3MVNZYUbqD9rkR4k");
+const PROGRAM_ID = new PublicKey("J4qkfpNjTBHwW5eNSeAEKTB6wYVPSjAo3fVZcC93bSCE");
 
 // Banner
 console.log(chalk.cyan.bold("\n╔══════════════════════════════════════════════════════════╗"));
@@ -34,10 +34,10 @@ async function main() {
     commitment: "confirmed",
   });
 
-  // Load IDL
   const idl = JSON.parse(
     fs.readFileSync("./target/idl/aegis_protocol.json", "utf-8")
   );
+  const programId = new PublicKey("J4qkfpNjTBHwW5eNSeAEKTB6wYVPSjAo3fVZcC93bSCE");
 
   const program = new Program(idl, provider);
 
