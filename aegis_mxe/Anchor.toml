@@ -6,7 +6,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-aegis_mxe_deploy = "3eRnGDsu7CA4zxStmGjqTBjc6Ajye4Vnt7MDC5C4VrZe"
+aegis_mxe_deploy = "5qH45Q76pV9ARBP9gsVRotiwjV5mfAk4q2w6gQi1NpAs"
 
 [registry]
 url = "https://api.apr.dev"

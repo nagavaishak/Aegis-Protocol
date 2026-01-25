@@ -3,7 +3,7 @@ use arcium_anchor::prelude::*;
 
 const COMP_DEF_OFFSET_VERIFY_ACCESS: u32 = comp_def_offset("verify_access");
 
-declare_id!("3eRnGDsu7CA4zxStmGjqTBjc6Ajye4Vnt7MDC5C4VrZe");
+declare_id!("5qH45Q76pV9ARBP9gsVRotiwjV5mfAk4q2w6gQi1NpAs");
 
 #[arcium_program]
 pub mod aegis_mxe_deploy {

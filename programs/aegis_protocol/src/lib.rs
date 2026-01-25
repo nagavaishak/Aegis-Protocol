@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("G2EZATTbHmbhYwPngem9vLfVnbCH3MVNZYUbqD9rkR4k");
+declare_id!("J4qkfpNjTBHwW5eNSeAEKTB6wYVPSjAo3fVZcC93bSCE");
 
 /// Aegis Protocol: Secrets-as-a-Service Infrastructure for Autonomous Systems
 /// 

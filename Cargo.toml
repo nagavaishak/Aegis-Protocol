@@ -1,6 +1,9 @@
 [workspace]
-members = [ "aegis_mxe",
+members = [
     "programs/*"
+]
+exclude = [
+    "aegis_mxe"
 ]
 resolver = "2"
 
@@ -8,6 +11,7 @@ resolver = "2"
 overflow-checks = true
 lto = "fat"
 codegen-units = 1
+
 [profile.release.build-override]
 opt-level = 3
 incremental = false
