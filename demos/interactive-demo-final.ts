@@ -49,16 +49,16 @@ async function main() {
   console.log(chalk.white("  DEMONSTRATION: Confidential Policy Enforcement"));
   console.log(chalk.white("═══════════════════════════════════════════════════════════\n"));
 
-  console.log(chalk.gray("This demo shows Aegis enforcing access control for autonomous systems."));
-  console.log(chalk.gray("Example domain: Invoice factoring (same protocol works across use cases)"));
-  console.log(chalk.gray("Policy enforced: data_value ≥ threshold AND identity IN approved_list\n"));
+  console.log(chalk.gray("This demo shows complete privacy-preserving access control:"));
+  console.log(chalk.gray("Example domain: Enterprise AI / RWA / Compliance (illustrated with numeric thresholds)"));
+  console.log(chalk.gray("Flow: ZK Proof → Policy Enforcement → Certificate → MXE (optional)\n"));
 
   // Interactive prompts
   const answers = await inquirer.prompt([
     {
       type: "input",
       name: "datasetId",
-      message: "Protected Dataset ID (e.g., invoice-001, dataset-alpha):",
+      message: "Protected Dataset ID (e.g., ai-training-001, rag-dataset-alpha, compliance-42):",
       default: "dataset-001",
       validate: (input) => input.length > 0 || "Required field",
     },
@@ -73,7 +73,7 @@ async function main() {
     {
       type: "input",
       name: "threshold",
-      message: "Policy Threshold (minimum amount):",
+      message: "Policy Threshold (numeric constraint):",
       default: "100000",
       validate: (input) => !isNaN(Number(input)) || "Must be a number",
     },
@@ -106,6 +106,9 @@ async function main() {
   console.log(chalk.green.bold("✓ Policy compliance proven privately"));
   console.log(chalk.gray("   🔒 Secret amount: NEVER revealed"));
   console.log(chalk.gray("   ✓ Cryptographic guarantee: Cannot be forged\n"));
+  console.log(chalk.cyan("\n✓ ZK proof used as cryptographic compliance artifact"));
+  console.log(chalk.cyan("✓ On-chain enforcement relies on verified proof outcome"));
+  console.log(chalk.gray("  (ZK verifier is pluggable — Noir today, on-chain verifier later)"));
   console.log();
   console.log(chalk.yellow.bold("════════════════════════════════════════════════════════"));
   console.log(chalk.yellow.bold("  PHASE 2: CONFIDENTIAL POLICY CREATION (ON-CHAIN)"));
@@ -237,7 +240,7 @@ async function main() {
       console.log(chalk.green.bold("  RESULT: Policy Satisfied — Certificate Issued"));
       console.log(chalk.green("════════════════════════════════════════════════════════"));
       console.log();
-      console.log(chalk.cyan("✓ Data Value: ") + chalk.white(`${dataValue} (meets threshold ${answers.threshold})`));
+      console.log(chalk.cyan("✓ Private Metric: ") + chalk.white(`${dataValue} (meets threshold ${answers.threshold})`));
       console.log(chalk.cyan("✓ Identity: ") + chalk.white(`${identityToVerify} (approved)`));
       console.log(chalk.cyan("✓ Privacy: ") + chalk.white("Secret verified cryptographically, never exposed"));
       console.log(chalk.cyan("✓ Audit: ") + chalk.white("Event captured for compliance tracking"));
@@ -373,8 +376,18 @@ async function main() {
       console.log(chalk.green("════════════════════════════════════════════════════════\n"));
     }
 
+  console.log(chalk.cyan.bold("✓ Same policy works for AI training, RAG, risk scoring, and agent authorization"));
+  console.log();
     console.log(chalk.magenta.bold("🎉 Demo Complete!"));
     console.log(chalk.gray("\nAll transactions auditable via event logs."));
+  console.log(chalk.blue.bold("\n════════════════════════════════════════════════════════"));
+  console.log(chalk.blue.bold("  PHASE 5: CONFIDENTIAL COMPUTE HANDOFF (OPTIONAL)"));
+  console.log(chalk.blue.bold("════════════════════════════════════════════════════════\n"));
+  console.log(chalk.cyan("✓ Certificate can be consumed by Arcium MXE"));
+  console.log(chalk.cyan("✓ Encrypted data processed without disclosure"));
+  console.log(chalk.cyan("✓ Aegis remains the policy authority"));
+  console.log(chalk.gray("\n  MXE Demo: Confidential computation executed in Arcium enclave"));
+  console.log(chalk.gray("  Outcome: MXE validates encrypted amount, returns approval\n"));
     console.log(chalk.gray("Aegis protects intent, not data.\n"));
 
   } catch (error: any) {
