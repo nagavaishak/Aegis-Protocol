@@ -130,15 +130,38 @@ They **must not reveal**:
 ---
 
 ## 🚀 Quick Start
-```bash
-# Interactive demo
-solana-test-validator
-npx ts-node --transpile-only demos/interactive-demo-visual.ts
 
-# Arcium MXE demo
+### Interactive Demo (Recommended)
+```bash
+# Start local validator
+solana-test-validator
+
+# In another terminal
+npx ts-node --transpile-only demos/interactive-demo-visual.ts
+```
+
+### Run Test Suite
+```bash
+anchor test
+```
+
+### Arcium MXE Demo
+```bash
 cd aegis_mxe
+ulimit -n 1048576
 arcium test
 ```
+
+---
+
+## Network
+
+**Deployed on Solana Devnet**
+- Program ID: `J4qkfpNjTBHwW5eNSeAEKTB6wYVPSjAo3fVZcC93bSCE`
+- RPC: `https://api.devnet.solana.com`
+- Explorer: [View on Solscan](https://solscan.io/account/J4qkfpNjTBHwW5eNSeAEKTB6wYVPSjAo3fVZcC93bSCE?cluster=devnet)
+
+**Note:** Interactive demo uses local validator for reliable airdrops during testing. The program is also deployed on devnet for inspection.
 
 ---
 
