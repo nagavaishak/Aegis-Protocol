@@ -21,7 +21,7 @@ console.log(chalk.cyan.bold("╚════════════════
 async function main() {
   // Setup connection
   const connection = new Connection(
-    process.env.ANCHOR_PROVIDER_URL || "http://127.0.0.1:8899",
+    process.env.ANCHOR_PROVIDER_URL || "https://devnet.helius-rpc.com/?api-key=d519793a-1f41-4ddb-aa64-8bfe086d5fd7",
     "confirmed"
   );
   
