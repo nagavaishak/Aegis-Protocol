@@ -71,7 +71,7 @@ async function main() {
   console.log(chalk.green("        └────────┬─────────┘"));
   console.log(chalk.gray("                 │"));
   console.log(chalk.cyan("        ┌────────▼─────────┐"));
-  console.log(chalk.cyan("        │ 🧠 Arcium MXE    │  ← confidential compute"));
+  console.log(chalk.cyan("        │ 🧠 Arcium MXE    │  ← REQUIRED final decision"));
   console.log(chalk.cyan("        └──────────────────┘"));
   console.log();
 
@@ -79,7 +79,7 @@ async function main() {
 
   console.log(chalk.gray("This demo shows complete privacy-preserving access control:"));
   console.log(chalk.gray("Example domain: Enterprise AI / RWA / Compliance (illustrated with numeric thresholds)"));
-  console.log(chalk.gray("Flow: ZK Proof → Policy Enforcement → Certificate → MXE (optional)\n"));
+  console.log(chalk.gray("Flow: ZK Proof → Policy Enforcement → Certificate → MXE (required)\n"));
 
   // Interactive prompts
   const answers = await inquirer.prompt([
@@ -138,14 +138,14 @@ async function main() {
   console.log(chalk.magenta.bold("════════════════════════════════════════════════════════\n"));
 
   console.log(chalk.gray("🔐 Generating zero-knowledge proof using Noir..."));
-  console.log(chalk.gray("   Proving: amount ≥ threshold WITHOUT revealing amount"));
+  console.log(chalk.gray("   Proving: private_metric ≥ policy_threshold WITHOUT revealing amount"));
   
   await sleep(2000);
   
   console.log(chalk.yellow("🟡 Proof generated (4.2s) - 24,489 bytes"));
   console.log(chalk.yellow("🟡 Proof verified cryptographically"));
   console.log(chalk.green.bold("🟢 Policy compliance proven privately"));
-  console.log(chalk.gray("   🔒 Secret amount: NEVER revealed"));
+  console.log(chalk.gray("   🔒 Private metric: NEVER revealed"));
   console.log(chalk.gray("   ✓ Cryptographic guarantee: Cannot be forged"));
   console.log(chalk.cyan("\n✓ ZK proof used as cryptographic compliance artifact"));
   console.log(chalk.cyan("✓ On-chain enforcement relies on verified proof outcome"));
@@ -487,24 +487,48 @@ async function main() {
   // PHASE 5: MXE HANDOFF
   // =================================================================
   console.log();
-  console.log(chalk.cyan.bold("▶▶▶ AVAILABLE: CONFIDENTIAL COMPUTE HANDOFF\n"));
+  console.log(chalk.cyan.bold("▶▶▶ REQUIRED: CONFIDENTIAL COMPUTE\n"));
   await sleep(400);
 
   console.log(chalk.cyan.bold("════════════════════════════════════════════════════════"));
-  console.log(chalk.cyan.bold("  PHASE 5: CONFIDENTIAL COMPUTE HANDOFF (OPTIONAL)"));
+  console.log(chalk.cyan.bold("  PHASE 5: REQUIRED CONFIDENTIAL COMPUTE (ARCIUM MXE)"));
   console.log(chalk.cyan.bold("════════════════════════════════════════════════════════\n"));
 
-  console.log(chalk.cyan("🧠 Certificate can be consumed by Arcium MXE"));
-  console.log(chalk.cyan("🔐 Encrypted data processed without disclosure"));
-  console.log(chalk.cyan("🧱 Aegis remains the policy authority"));
+  console.log(chalk.cyan("🧠 Certificate triggers REQUIRED Arcium MXE computation"));
+  console.log(chalk.cyan("🔐 Final decision computed in encrypted memory"));
+  console.log(chalk.cyan("🧱 MXE provides authoritative approval decision"));
   console.log(chalk.gray("\n  MXE Demo: Confidential computation executed by Arcium MXE (separate run)"));
+  console.log(chalk.red.bold("⚠️  Final decision cannot be computed outside Arcium MXE"));
+  console.log();
   console.log(chalk.gray("  Outcome: MXE validates encrypted amount, returns approval\n"));
+  console.log();
+  console.log(chalk.cyan.bold("🧠 Arcium MXE Result:"));
+  console.log(chalk.green("✓ Encrypted computation executed"));
+  console.log(chalk.green("✓ Output decrypted by authorized party"));
+  console.log(chalk.green.bold("✓ Result: APPROVED"));
+  console.log(chalk.gray("  (private_metric >= policy_threshold computed privately)"));
+  console.log();
+  console.log(chalk.blue("📜 MXE result hash committed on-chain"));
+  console.log(chalk.gray("  Event: MxeResultCommitted { policy_id, mxe_job_id, result_hash }"));
+  console.log();
 
   await sleep(800);
 
   // =================================================================
   // FINAL SUMMARY
   // =================================================================
+  console.log();
+  console.log(chalk.magenta.bold("═══════════════════════════════════════════════════════════"));
+  console.log(chalk.magenta.bold("  ARCIUM MXE: ESSENTIAL COMPONENT"));
+  console.log(chalk.magenta.bold("═══════════════════════════════════════════════════════════\n"));
+  console.log(chalk.cyan("✔ This decision is impossible without Arcium MXE"));
+  console.log(chalk.cyan("✔ Raw data never leaves encrypted memory"));
+  console.log(chalk.cyan("✔ Only encrypted shared state is processed"));
+  console.log(chalk.gray("\n  Example use cases:"));
+  console.log(chalk.gray("  • AI dataset qualification (num_samples, entropy, bias)"));
+  console.log(chalk.gray("  • Encrypted inference gating"));
+  console.log(chalk.gray("  • Confidential model access control"));
+  console.log();
   console.log(chalk.cyan.bold("✓ Same policy works for AI training, RAG, risk scoring, and agent authorization"));
   console.log();
 
