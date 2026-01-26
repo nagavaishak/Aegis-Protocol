@@ -310,7 +310,7 @@ async function main() {
       console.log();
       
       console.log(chalk.green.bold("════════════════════════════════════════════════════════"));
-      console.log(chalk.green.bold("  RESULT: Policy Satisfied — Certificate Issued"));
+      console.log(chalk.green.bold("  RESULT: Policy Preconditions Satisfied — Certificate Issued"));
       console.log(chalk.green.bold("════════════════════════════════════════════════════════\n"));
       
       console.log(chalk.cyan("✓ Private Metric: ") + chalk.white(`${dataValue.toLocaleString()} (meets policy threshold)`));
@@ -493,6 +493,8 @@ async function main() {
   console.log(chalk.cyan.bold("════════════════════════════════════════════════════════"));
   console.log(chalk.cyan.bold("  PHASE 5: REQUIRED CONFIDENTIAL COMPUTE (ARCIUM MXE)"));
   console.log(chalk.cyan.bold("════════════════════════════════════════════════════════\n"));
+  console.log(chalk.red.bold("🛑 No on-chain or client logic can override this result"));
+  console.log();
 
   console.log(chalk.cyan("🧠 Certificate triggers REQUIRED Arcium MXE computation"));
   console.log(chalk.cyan("🔐 Final decision computed in encrypted memory"));
