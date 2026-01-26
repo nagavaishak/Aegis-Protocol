@@ -131,17 +131,15 @@ They **must not reveal**:
 
 ## 🚀 Quick Start
 
-### Interactive Demo (Recommended)
+### Interactive Demo (Devnet)
 ```bash
-# Start local validator
-solana-test-validator
-
-# In another terminal
+# Demo runs on Solana devnet with Helius RPC (no rate limits)
 npx ts-node --transpile-only demos/interactive-demo-visual.ts
 ```
 
-### Run Test Suite
+### Run Test Suite (Local)
 ```bash
+# Tests run on local validator
 anchor test
 ```
 
@@ -158,10 +156,8 @@ arcium test
 
 **Deployed on Solana Devnet**
 - Program ID: `J4qkfpNjTBHwW5eNSeAEKTB6wYVPSjAo3fVZcC93bSCE`
-- RPC: `https://api.devnet.solana.com`
+- RPC: Helius devnet (production-grade, no rate limits)
 - Explorer: [View on Solscan](https://solscan.io/account/J4qkfpNjTBHwW5eNSeAEKTB6wYVPSjAo3fVZcC93bSCE?cluster=devnet)
-
-**Note:** Interactive demo uses local validator for reliable airdrops during testing. The program is also deployed on devnet for inspection.
 
 ---
 
@@ -170,6 +166,7 @@ arcium test
 - **Arcium** — Required confidential computation (MXE)
 - **Aztec / Noir** — Real zero-knowledge policy proofs
 - **Solana** — Deterministic, auditable enforcement
+- **Helius** — Production RPC infrastructure
 
 ---
 
