@@ -210,7 +210,7 @@ async function main() {
     
     console.log();
     console.log(chalk.cyan("📋 Policy Details:"));
-    console.log(chalk.gray(`   Transaction: ${tx.slice(0, 40)}...`));
+    console.log(chalk.gray("   Transaction: " + tx));
     console.log(chalk.gray(`   Policy Address: ${ruleAddress.toString().slice(0, 20)}...`));
     console.log(chalk.gray(`   Dataset ID: ${answers.datasetId}`));
     console.log(chalk.gray(`   Threshold: ${answers.threshold}`));
