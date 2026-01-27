@@ -41,6 +41,18 @@ async function main() {
 
   const program = new Program(idl, provider);
 
+  // Helper to fund accounts from main wallet (avoids faucet rate limits)
+  async function fundAccount(toPubkey: PublicKey, lamports: number) {
+    const tx = new anchor.web3.Transaction().add(
+      SystemProgram.transfer({
+        fromPubkey: wallet.publicKey,
+        toPubkey,
+        lamports,
+      })
+    );
+    await provider.sendAndConfirm(tx);
+  }
+
   console.log(chalk.green("✓ Connected to Solana"));
   console.log(chalk.green(`✓ Wallet: ${wallet.publicKey.toString().slice(0, 8)}...`));
   console.log();
@@ -258,7 +270,7 @@ async function main() {
 
     try {
       const requester = Keypair.generate();
-      await connection.requestAirdrop(requester.publicKey, 1000000000);
+      await fundAccount(requester.publicKey, 1000000000);
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const [certificatePda] = PublicKey.findProgramAddressSync(
@@ -368,7 +380,7 @@ async function main() {
     // Test 1
     console.log(chalk.red("\n🔴 Test 1: Invalid Secret"));
     const wrongRequester1 = Keypair.generate();
-    await connection.requestAirdrop(wrongRequester1.publicKey, 1000000000);
+    await fundAccount(wrongRequester1.publicKey, 1000000000);
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const [wrongCert1] = PublicKey.findProgramAddressSync(
@@ -405,7 +417,7 @@ async function main() {
     // Test 2
     console.log(chalk.red("\n🔴 Test 2: Data Value Below Policy Threshold"));
     const wrongRequester2 = Keypair.generate();
-    await connection.requestAirdrop(wrongRequester2.publicKey, 1000000000);
+    await fundAccount(wrongRequester2.publicKey, 1000000000);
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const [wrongCert2] = PublicKey.findProgramAddressSync(
@@ -440,7 +452,7 @@ async function main() {
     // Test 3
     console.log(chalk.red("\n🔴 Test 3: Unauthorized Identity"));
     const wrongRequester3 = Keypair.generate();
-    await connection.requestAirdrop(wrongRequester3.publicKey, 1000000000);
+    await fundAccount(wrongRequester3.publicKey, 1000000000);
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const [wrongCert3] = PublicKey.findProgramAddressSync(
