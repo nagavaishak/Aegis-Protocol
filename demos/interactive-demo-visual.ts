@@ -223,7 +223,7 @@ async function main() {
     console.log();
     console.log(chalk.cyan("📋 Policy Details:"));
     console.log(chalk.gray("   Transaction: " + tx));
-    console.log(chalk.gray(`   Policy Address: ${ruleAddress.toString().slice(0, 20)}...`));
+    console.log(chalk.gray("   Policy Address: " + ruleAddress.toString()));
     console.log(chalk.gray(`   Dataset ID: ${answers.datasetId}`));
     console.log(chalk.gray(`   Threshold: ${answers.threshold}`));
     console.log(chalk.gray(`   Allowed Identities: ${answers.identity1}, ${answers.identity2}`));
@@ -317,8 +317,8 @@ async function main() {
       console.log();
       
       console.log(chalk.cyan("📋 Certificate Details:"));
-      console.log(chalk.gray(`   Requester: ${requester.publicKey.toString().slice(0, 20)}...`));
-      console.log(chalk.gray(`   Certificate: ${certificatePda.toString().slice(0, 20)}...`));
+      console.log(chalk.gray("   Requester: " + requester.publicKey.toString()));
+      console.log(chalk.gray("   Certificate: " + certificatePda.toString()));
       console.log();
       
       console.log(chalk.green.bold("════════════════════════════════════════════════════════"));
