@@ -270,7 +270,7 @@ async function main() {
 
     try {
       const requester = Keypair.generate();
-      await fundAccount(requester.publicKey, 1000000000);
+      await fundAccount(requester.publicKey, 100000000);
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const [certificatePda] = PublicKey.findProgramAddressSync(
@@ -380,7 +380,7 @@ async function main() {
     // Test 1
     console.log(chalk.red("\n🔴 Test 1: Invalid Secret"));
     const wrongRequester1 = Keypair.generate();
-    await fundAccount(wrongRequester1.publicKey, 1000000000);
+    await fundAccount(wrongRequester1.publicKey, 100000000);
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const [wrongCert1] = PublicKey.findProgramAddressSync(
@@ -417,7 +417,7 @@ async function main() {
     // Test 2
     console.log(chalk.red("\n🔴 Test 2: Data Value Below Policy Threshold"));
     const wrongRequester2 = Keypair.generate();
-    await fundAccount(wrongRequester2.publicKey, 1000000000);
+    await fundAccount(wrongRequester2.publicKey, 100000000);
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const [wrongCert2] = PublicKey.findProgramAddressSync(
@@ -452,7 +452,7 @@ async function main() {
     // Test 3
     console.log(chalk.red("\n🔴 Test 3: Unauthorized Identity"));
     const wrongRequester3 = Keypair.generate();
-    await fundAccount(wrongRequester3.publicKey, 1000000000);
+    await fundAccount(wrongRequester3.publicKey, 100000000);
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const [wrongCert3] = PublicKey.findProgramAddressSync(

@@ -129,6 +129,15 @@ They **must not reveal**:
 
 ---
 
+## 🎬 Demo Video
+
+**Watch the complete 5-phase demo:**
+[![Aegis Protocol Demo](https://img.youtube.com/vi/igiaVKsZL7U/maxresdefault.jpg)](https://youtu.be/igiaVKsZL7U)
+
+[▶️ Watch on YouTube](https://youtu.be/igiaVKsZL7U)
+
+---
+
 ## 🚀 Quick Start
 
 ### Interactive Demo (Devnet)
