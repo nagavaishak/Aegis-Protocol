@@ -180,3 +180,22 @@ arcium test
 ---
 
 **Aegis protects intent, not data.**
+
+---
+
+## 🔍 Proof of Deployment
+
+**Verifiable on Solscan Devnet:**
+
+### Phase 2 - Policy Creation
+- **Transaction:** [View on Solscan](https://solscan.io/tx/312pViCzeJkBrqBnD1qKh6F4k7Asnhsro5CEzLcsvp7xrH2mPJYPZLZXW8zSn5eqgp81WBmCKqQZEcPSAWfMoh2w?cluster=devnet)
+- **Policy Account:** [View on Solscan](https://solscan.io/account/GybNRj8znTkmGnUsWvLcmGYPS98x5fDDfCEA8JE4vdkt?cluster=devnet)
+
+### Phase 3 - Certificate Issuance
+- **Requester Account:** [View on Solscan](https://solscan.io/account/FWcqx9mGHk86Rm92uTvcnfGmrcWSidubWAGZw6A2V3Ax?cluster=devnet)
+- **Certificate Account:** [View on Solscan](https://solscan.io/account/J5B2PGSTRzUk9R6XQqajJquWfCQUUJUKJdwHRwv4NFnm?cluster=devnet)
+
+### Program
+- **Program Account:** [View on Solscan](https://solscan.io/account/J4qkfpNjTBHwW5eNSeAEKTB6wYVPSjAo3fVZcC93bSCE?cluster=devnet)
+
+**All verifiable on-chain. No mocks, no slideware.**
